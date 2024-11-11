@@ -61,3 +61,38 @@ VALUES
     (7, 'Concrete', 'Ready-mix concrete', 90, 1),
     (8, 'Copper', 'Copper wires', 210, 2),
     (9, 'Textile', 'Polyester fabric', 70, 3);
+
+---- Підзапити(Завдання 1)
+--
+---- 1. Некорелюючий підзапит: Пошук замовлень із сумою, більшою за середню суму всіх замовлень
+--SELECT id_order, id_customer, total_amount
+--FROM order_
+--WHERE total_amount > (SELECT AVG(total_amount) FROM order_);
+--
+---- 2. Корелюючий підзапит: Пошук клієнтів, які мають хоча б одне "Pending" замовлення
+--SELECT DISTINCT c.customer_surname, c.customer_name
+--FROM customer c
+--WHERE EXISTS (
+--    SELECT 1
+--    FROM order_ o
+--    WHERE o.id_customer = c.id_customer AND o.status_ = 'Pending'
+--);
+--
+---- 3. Некорелюючий підзапит: Пошук матеріалів, ціна яких перевищує мінімальну ціну в таблиці
+--SELECT material_name, price
+--FROM material
+--WHERE price > (SELECT MIN(price) FROM material);
+--
+---- 4. Корелюючий підзапит: Пошук замовлень із сумою, більшою за середню суму замовлень для кожного клієнта
+--SELECT o.id_order, o.total_amount
+--FROM order_ o
+--WHERE o.total_amount > (
+--    SELECT AVG(total_amount)
+--    FROM order_
+--    WHERE id_customer = o.id_customer
+--);
+--
+---- 5. Некорелюючий підзапит: Пошук клієнтів, які не мають жодного замовлення
+--SELECT customer_surname, customer_name
+--FROM customer
+--WHERE id_customer NOT IN (SELECT id_customer FROM order_);
