@@ -26,6 +26,12 @@ CREATE TABLE material (
     id_supplier INT
 );
 
+CREATE TABLE supplier (
+    id_supplier INT PRIMARY KEY,
+    supplier_name VARCHAR(25) NOT NULL,
+    phone_number VARCHAR(10) NOT NULL
+);
+
 -- Вставка даних у таблиці customer
 INSERT INTO customer (id_customer, customer_surname, customer_name, phone_number, email, customer_adress)
 VALUES
@@ -62,6 +68,13 @@ VALUES
     (8, 'Copper', 'Copper wires', 210, 2),
     (9, 'Textile', 'Polyester fabric', 70, 3);
 
+-- Вставка даних у таблиці supplier
+INSERT INTO supplier (id_supplier, supplier_name, phone_number)
+VALUES
+    (1, 'Supplier A', '0501234567'),
+    (2, 'Supplier B', '0667654321'),
+    (3, 'Supplier C', '0979876543');
+
 ---- Підзапити(Завдання 1)
 --
 ---- 1. Некорелюючий підзапит: Пошук замовлень із сумою, більшою за середню суму всіх замовлень
@@ -97,4 +110,116 @@ VALUES
 --FROM customer
 --WHERE id_customer NOT IN (SELECT id_customer FROM order_);
 
+
+
+
+
+
+---- Приклади запитів з INNER JOIN та OUTER JOIN(Завдання 2)
 --
+---- 1. INNER JOIN: Пошук замовлень разом із даними про клієнтів, які їх розмістили
+--SELECT o.id_order, o.order_date, o.total_amount, c.customer_name, c.customer_surname
+--FROM order_ o
+--INNER JOIN customer c ON o.id_customer = c.id_customer;
+--
+---- 2. LEFT JOIN: Виведення всіх клієнтів і їх замовлень (включаючи клієнтів без замовлень)
+--SELECT c.customer_name, c.customer_surname, o.id_order, o.total_amount
+--FROM customer c
+--LEFT JOIN order_ o ON c.id_customer = o.id_customer;
+--
+---- 3. RIGHT JOIN: Пошук усіх замовлень та відповідних клієнтів (включаючи замовлення без даних клієнтів)
+--SELECT o.id_order, o.order_date, o.total_amount, c.customer_name, c.customer_surname
+--FROM order_ o
+--RIGHT JOIN customer c ON o.id_customer = c.id_customer;
+--
+---- 4. FULL OUTER JOIN: Виведення всіх клієнтів та їх замовлень, включаючи клієнтів без замовлень і замовлення без клієнтів
+--SELECT c.customer_name, c.customer_surname, o.id_order, o.total_amount
+--FROM customer c
+--FULL OUTER JOIN order_ o ON c.id_customer = o.id_customer;
+--
+---- 5. INNER JOIN: Пошук замовлень із сумою більшою за 3000 разом із матеріалами
+--SELECT o.id_order, o.total_amount, m.material_name, m.price
+--FROM order_ o
+--INNER JOIN material m ON o.total_amount > 3000;
+
+
+
+----Завдання 3
+
+---- 1. Підрахунок кількості замовлень за статусом
+--SELECT
+--    COUNT(CASE WHEN status_ = 'Completed' THEN 1 END) AS completed_orders,
+--    COUNT(CASE WHEN status_ = 'Pending' THEN 1 END) AS pending_orders
+--FROM order_;
+--
+---- 2. Визначення категорії сум замовлень (низька, середня, висока) та підрахунок замовлень за кожною категорією
+--SELECT
+--    COUNT(CASE WHEN total_amount < 3000 THEN 1 END) AS low_amount_orders,
+--    COUNT(CASE WHEN total_amount BETWEEN 3000 AND 5000 THEN 1 END) AS medium_amount_orders,
+--    COUNT(CASE WHEN total_amount > 5000 THEN 1 END) AS high_amount_orders
+--FROM order_;
+--
+---- 3. Підрахунок кількості замовлень кожного клієнта та визначення активності клієнта
+--SELECT
+--    c.customer_name,
+--    c.customer_surname,
+--    COUNT(o.id_order) AS total_orders,
+--    CASE
+--        WHEN COUNT(o.id_order) >= 3 THEN 'Active'
+--        WHEN COUNT(o.id_order) = 2 THEN 'Moderately Active'
+--        WHEN COUNT(o.id_order) = 1 THEN 'New'
+--        ELSE 'Inactive'
+--    END AS activity_level
+--FROM customer c
+--LEFT JOIN order_ o ON c.id_customer = o.id_customer
+--GROUP BY c.id_customer;
+--
+---- 4. Підрахунок загальної кількості матеріалів кожного постачальника, з категоризацією вартості
+--SELECT
+--    id_supplier,
+--    COUNT(id_material) AS total_materials,
+--    SUM(CASE WHEN price > 100 THEN price ELSE 0 END) AS high_cost_materials_value,
+--    SUM(CASE WHEN price <= 100 THEN price ELSE 0 END) AS low_cost_materials_value
+--FROM material
+--GROUP BY id_supplier;
+--
+---- 5. Визначення середнього часу виконання замовлень у днях для кожного статусу
+--SELECT
+--    status_,
+--    AVG(DATEDIFF(date_execution, order_date)) AS avg_days_to_execute
+--FROM order_
+--GROUP BY status_;
+
+
+
+
+
+
+----Завдання 4
+---- 1. UNION: Вибір унікальних номерів телефонів клієнтів і постачальників
+--SELECT phone_number FROM customer
+--UNION
+--SELECT phone_number FROM supplier;
+--
+---- 2. UNION ALL: Вибір усіх замовлень і матеріалів з однаковою структурою полів для отримання комбінованого списку (без видалення дублікатів)
+--SELECT id_order AS id, order_date AS date, 'Order' AS type
+--FROM order_
+--UNION ALL
+--SELECT id_material AS id, NULL AS date, 'Material' AS type
+--FROM material;
+--
+---- 3. INTERSECT: Вибір клієнтів, які також є постачальниками
+--SELECT customer_name AS name FROM customer
+--INTERSECT
+--SELECT supplier_name AS name FROM supplier;
+--
+---- 4. EXCEPT: Вибір клієнтів, які не мають жодного замовлення
+--SELECT customer_name, customer_surname FROM customer
+--EXCEPT
+--SELECT customer_name, customer_surname FROM customer
+--JOIN order_ ON customer.id_customer = order_.id_customer;
+--
+---- 5. UNION: Вибір всіх дат замовлень і дат виконання замовлень
+--SELECT order_date AS event_date FROM order_
+--UNION
+--SELECT date_execution AS event_date FROM order_;
