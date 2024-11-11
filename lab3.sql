@@ -162,3 +162,24 @@ SELECT * FROM employee;
 SELECT * FROM supplier;
 SELECT * FROM stock;
 SELECT * FROM production;
+
+
+SELECT DISTINCT customer_name
+FROM customer;
+
+SELECT customer_name, customer_surname
+FROM customer
+WHERE email IS NULL;
+
+SELECT id_order, order_date, total_amount
+FROM order_
+WHERE status_ = 'Pending'
+LIMIT 3;
+
+SELECT DISTINCT product_color
+FROM product;
+
+SELECT part_name, part_material
+FROM part
+WHERE availability_in_stock = 'In stock'
+LIMIT 5;
