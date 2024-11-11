@@ -96,3 +96,5 @@ VALUES
 --SELECT customer_surname, customer_name
 --FROM customer
 --WHERE id_customer NOT IN (SELECT id_customer FROM order_);
+
+--
